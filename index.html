@@ -63,13 +63,15 @@
   <script>
     async function fetchOrganisations() {
       const url = 'https://directory.spineservices.nhs.uk/ORD/2-0-0/organisations?Name=MENDIP%20VALE&Limit=20';
+
       try {
         const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
         if (!res.ok) throw new Error(`API error: ${res.status}`);
 
         const data = await res.json();
 
-        const orgs = data.Organisation || [];
+        // The organisations are in 'Organisations' (plural)
+        const orgs = data.Organisations || [];
         const tbody = document.getElementById('resultsBody');
         tbody.innerHTML = '';
 
@@ -107,3 +109,4 @@
   </script>
 </body>
 </html>
+
