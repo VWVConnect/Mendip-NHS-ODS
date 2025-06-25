@@ -4,34 +4,67 @@
   <meta charset="UTF-8" />
   <title>Mendip Vale Organisations - NHS ODS Live Data</title>
   <style>
+    /* Simulate Articulat CF Light & Bold - replace URLs with your actual font files */
+    @font-face {
+      font-family: 'Articulat CF Light';
+      src: url('ArticulatCF-Light.woff2') format('woff2'),
+           url('ArticulatCF-Light.woff') format('woff');
+      font-weight: 300;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'Articulat CF Bold';
+      src: url('ArticulatCF-Bold.woff2') format('woff2'),
+           url('ArticulatCF-Bold.woff') format('woff');
+      font-weight: 700;
+      font-style: normal;
+    }
+
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Articulat CF Light', Arial, sans-serif;
       padding: 20px;
       background: #f4f6f8;
       color: #222;
+      margin: 0;
     }
     h1 {
-      color: #0072ce;
+      font-family: 'Articulat CF Bold', Arial, sans-serif;
+      color: #192543;
       margin-bottom: 10px;
+      border-bottom: 3px solid #192543;
+      padding-bottom: 5px;
+    }
+    p {
+      font-family: 'Articulat CF Light', Arial, sans-serif;
+      color: #192543;
+      font-size: 1.1em;
     }
     table {
       border-collapse: collapse;
       width: 100%;
-      background: white;
+      background: #192543; /* dark blue background for table */
       margin-top: 20px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+      box-shadow: 0 0 8px rgba(25, 37, 67, 0.6);
+      border: 2px solid #192543;
+      color: white; /* text in table is white */
     }
     th, td {
-      border: 1px solid #ddd;
+      border: 1px solid #7fc28f; /* lighter green border */
       padding: 10px;
       vertical-align: top;
+      font-family: 'Articulat CF Light', Arial, sans-serif;
+      font-weight: 300;
+      color: white;
     }
     th {
-      background: #e9ecef;
+      background-color: #7fc28f;
+      color: #192543; /* dark text on header */
+      font-family: 'Articulat CF Bold', Arial, sans-serif;
+      font-weight: 700;
       text-align: left;
     }
     tr:hover {
-      background: #f1f7fb;
+      background-color: #2b3b57;
     }
     .nowrap {
       white-space: nowrap;
@@ -42,21 +75,21 @@
   <h1>Mendip Vale Organisations (NHS ODS Live Data)</h1>
   <p>Search results for <strong>"MENDIP VALE"</strong> from NHS ODS API</p>
 
-  <table id="resultsTable">
+  <table id="resultsTable" role="table" aria-label="NHS Organisations Search Results">
     <thead>
       <tr>
-        <th>Name</th>
-        <th>ODS Code</th>
-        <th>Organisation Type</th>
-        <th>Status</th>
-        <th>Postcode</th>
-        <th>Address</th>
-        <th>Last Change Date</th>
-        <th>Created On</th>
+        <th scope="col">Name</th>
+        <th scope="col">ODS Code</th>
+        <th scope="col">Organisation Type</th>
+        <th scope="col">Status</th>
+        <th scope="col">Postcode</th>
+        <th scope="col">Address</th>
+        <th scope="col">Last Change Date</th>
+        <th scope="col">Created On</th>
       </tr>
     </thead>
     <tbody id="resultsBody">
-      <tr><td colspan="8">Loading data...</td></tr>
+      <tr><td colspan="8" style="color: white; text-align: center;">Loading data...</td></tr>
     </tbody>
   </table>
 
@@ -70,13 +103,12 @@
 
         const data = await res.json();
 
-        // The organisations are in 'Organisations' (plural)
         const orgs = data.Organisations || [];
         const tbody = document.getElementById('resultsBody');
         tbody.innerHTML = '';
 
         if (orgs.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="8">No organisations found.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="8" style="color:white; text-align:center;">No organisations found.</td></tr>';
           return;
         }
 
@@ -101,7 +133,7 @@
       } catch (error) {
         console.error(error);
         const tbody = document.getElementById('resultsBody');
-        tbody.innerHTML = `<tr><td colspan="8" style="color:red;">Error loading data: ${error.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" style="color:red; text-align:center;">Error loading data: ${error.message}</td></tr>`;
       }
     }
 
@@ -109,4 +141,3 @@
   </script>
 </body>
 </html>
-
