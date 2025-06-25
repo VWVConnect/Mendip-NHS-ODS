@@ -1,147 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Mendip Vale Organisations - NHS ODS Live Data</title>
+  <meta charset="UTF-8">
+  <title>Mendip Vale Medical Practice – Full ODS Data</title>
   <style>
-    @font-face {
-      font-family: 'Articulat CF Light';
-      src: url('ArticulatCF-Light.woff2') format('woff2'),
-           url('ArticulatCF-Light.woff') format('woff');
-      font-weight: 300;
-      font-style: normal;
-    }
-    @font-face {
-      font-family: 'Articulat CF Bold';
-      src: url('ArticulatCF-Bold.woff2') format('woff2'),
-           url('ArticulatCF-Bold.woff') format('woff');
-      font-weight: 700;
-      font-style: normal;
-    }
-
-    body {
-      font-family: 'Articulat CF Light', Arial, sans-serif;
-      padding: 20px;
-      background: white;
-      color: #222;
-      margin: 0;
-    }
-    h1 {
-      font-family: 'Articulat CF Bold', Arial, sans-serif;
-      color: #192543;
-      margin-bottom: 10px;
-      border-bottom: 3px solid #192543;
-      padding-bottom: 5px;
-    }
-    p {
-      font-family: 'Articulat CF Light', Arial, sans-serif;
-      color: #07b0a0;
-      font-size: 1.1em;
-    }
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      background: white;
-      margin-top: 20px;
-      box-shadow: 0 0 8px rgba(25, 37, 67, 0.3);
-      border: 2px solid #192543;
-      color: #222;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 10px;
-      vertical-align: top;
-      font-family: 'Articulat CF Light', Arial, sans-serif;
-      font-weight: 300;
-    }
-    th {
-      background-color: #7fc28f;
-      color: white;
-      font-family: 'Articulat CF Bold', Arial, sans-serif;
-      font-weight: 700;
-      text-align: left;
-    }
-    tr:hover {
-      background-color: #f0f9f0;
-    }
-    .nowrap {
-      white-space: nowrap;
-    }
+    body { font-family: Arial, sans-serif; padding: 20px; background:white; color:#222; }
+    h1 { color:#192543; border-bottom:3px solid #192543; font-weight:bold; }
+    table { width:100%; border-collapse:collapse; margin-top:20px; border:2px solid #192543; }
+    th { background:#7fc28f; color:white; padding:8px; text-align:left; }
+    td { border:1px solid #ddd; padding:8px; vertical-align:top; }
+    tr:hover { background:#f0f9f0; }
   </style>
 </head>
 <body>
-  <h1>Mendip Vale Organisations (NHS ODS Live Data)</h1>
-  <p>Search results for <strong>"MENDIP VALE"</strong> from NHS ODS API</p>
 
-  <table id="resultsTable" role="table" aria-label="NHS Organisations Search Results">
+  <h1>Mendip Vale Medical Practice (ODS Full Data)</h1>
+
+  <table>
     <thead>
       <tr>
-        <th scope="col">Name</th>
-        <th scope="col">ODS Code</th>
-        <th scope="col">Organisation Type</th>
-        <th scope="col">Status</th>
-        <th scope="col">Postcode</th>
-        <th scope="col">Address</th>
-        <th scope="col">Last Change Date</th>
-        <th scope="col">Created On</th>
+        <th>Name</th><th>ODS Code</th><th>Record Class</th><th>Status</th>
+        <th>Legal Start</th><th>Legal End</th><th>Operational Start</th><th>Operational End</th>
+        <th>Postcode</th><th>Address</th><th>Roles</th><th>Contacts</th>
+        <th>Relationships</th><th>Succession</th><th>Created On</th><th>Last Change</th><th>RefOnly</th>
       </tr>
     </thead>
-    <tbody id="resultsBody">
-      <tr><td colspan="8" style="text-align: center;">Loading data...</td></tr>
+    <tbody id="rows">
+      <tr><td colspan="17">Loading data...</td></tr>
     </tbody>
   </table>
 
   <script>
-    async function fetchOrganisations() {
-      const url = 'https://directory.spineservices.nhs.uk/ORD/2-0-0/organisations?Name=MENDIP%20VALE&Limit=20';
+    async function loadFullData() {
+      const url = 'https://directory.spineservices.nhs.uk/ORD/2-0-0/organisations?Name=MENDIP%20VALE%20MEDICAL%20PRACTICE&Limit=5';
+      const res = await fetch(url, { headers:{Accept:'application/json'} });
+      const data = await res.json();
+      const orgs = data.Organisations || [];
+      const tbody = document.getElementById('rows');
+      tbody.innerHTML = '';
 
-      try {
-        const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
-        if (!res.ok) throw new Error(`API error: ${res.status}`);
-
-        const data = await res.json();
-
-        const orgs = data.Organisations || [];
-        const tbody = document.getElementById('resultsBody');
-        tbody.innerHTML = '';
-
-        if (orgs.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">No organisations found.</td></tr>';
-          return;
-        }
-
-        orgs.forEach(org => {
-          const addressParts = [
-            org.Address1 || org.AddressLine1 || org.AddressLine_1,
-            org.Address2 || org.AddressLine2 || org.AddressLine_2,
-            org.Address3 || org.AddressLine3 || org.AddressLine_3,
-            org.Town || org.City || org.TownName,
-            org.County || org.CountyName
-          ].filter(Boolean);
-
-          const address = addressParts.join(', ');
-
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td>${org.Name || 'N/A'}</td>
-            <td class="nowrap">${org.OrgId?.extension || 'N/A'}</td>
-            <td>${org.OrgRecordClass || 'N/A'}</td>
-            <td>${org.Status || 'N/A'}</td>
-            <td class="nowrap">${org.PostCode || 'N/A'}</td>
-            <td>${address || 'N/A'}</td>
-            <td class="nowrap">${org.LastChangeDate || 'N/A'}</td>
-            <td class="nowrap">${org.CreatedOn || 'N/A'}</td>
-          `;
-          tbody.appendChild(row);
-        });
-      } catch (error) {
-        console.error(error);
-        const tbody = document.getElementById('resultsBody');
-        tbody.innerHTML = `<tr><td colspan="8" style="color:red; text-align:center;">Error loading data: ${error.message}</td></tr>`;
+      if (!orgs.length) {
+        tbody.innerHTML = '<tr><td colspan="17">No results found.</td></tr>';
+        return;
       }
+
+      orgs.forEach(org => {
+        const recClass = org.OrgRecordClass;
+        const status = org.Status;
+        const rs = org.Date?.find(d=>d.Type==='Legal')||{};
+        const os = org.Date?.find(d=>d.Type==='Operational')||{};
+        const geo = org.GeoLoc?.Location || {};
+        const address = [geo.AddrLn1,geo.AddrLn2,geo.AddrLn3,geo.Town,geo.County].filter(Boolean).join(', ');
+
+        const roles = (org.Roles||[])
+          .map(r => `${r.id} (${r.displayName})`)
+          .join('; ');
+        const contacts = (org.Contacts||[])
+          .map(c => `${c.Type}:${c.Value}`).join('; ');
+        const rels = (org.Relationships||[])
+          .map(r=>`${r.RelationshipType}→${r.Target.OrgId.extension}`).join('; ');
+        const succ = (org.Succession||[])
+          .map(s=>`${s.Type}→${s.Target.OrgId.extension}`).join('; ');
+
+        tbody.innerHTML += `
+          <tr>
+            <td>${org.Name||''}</td>
+            <td>${org.OrgId.extension}</td>
+            <td>${recClass}</td>
+            <td>${status}</td>
+            <td>${rs.Start||''}</td><td>${rs.End||''}</td>
+            <td>${os.Start||''}</td><td>${os.End||''}</td>
+            <td>${geo.PostCode||org.PostCode||''}</td>
+            <td>${address}</td>
+            <td>${roles}</td>
+            <td>${contacts}</td>
+            <td>${rels}</td>
+            <td>${succ}</td>
+            <td>${org.CreatedOn||''}</td>
+            <td>${org.LastChangeDate||''}</td>
+            <td>${org.refOnly||false}</td>
+          </tr>`;
+      });
     }
 
-    fetchOrganisations();
+    loadFullData();
   </script>
+
 </body>
 </html>
