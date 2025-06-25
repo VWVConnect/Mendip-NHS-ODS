@@ -42,29 +42,28 @@
     table {
       border-collapse: collapse;
       width: 100%;
-      background: #192543; /* dark blue background for table */
+      background: white; /* white table background */
       margin-top: 20px;
-      box-shadow: 0 0 8px rgba(25, 37, 67, 0.6);
-      border: 2px solid #192543;
-      color: white; /* text in table is white */
+      box-shadow: 0 0 8px rgba(25, 37, 67, 0.3);
+      border: 2px solid #192543; /* dark navy border */
+      color: #222; /* dark text in body */
     }
     th, td {
-      border: 1px solid #7fc28f; /* lighter green border */
+      border: 1px solid #ddd;
       padding: 10px;
       vertical-align: top;
       font-family: 'Articulat CF Light', Arial, sans-serif;
       font-weight: 300;
-      color: white;
     }
     th {
-      background-color: #7fc28f;
-      color: #192543; /* dark text on header */
+      background-color: #7fc28f; /* green background for header */
+      color: white; /* white text in header */
       font-family: 'Articulat CF Bold', Arial, sans-serif;
       font-weight: 700;
       text-align: left;
     }
     tr:hover {
-      background-color: #2b3b57;
+      background-color: #f0f9f0; /* subtle light green hover */
     }
     .nowrap {
       white-space: nowrap;
@@ -89,7 +88,7 @@
       </tr>
     </thead>
     <tbody id="resultsBody">
-      <tr><td colspan="8" style="color: white; text-align: center;">Loading data...</td></tr>
+      <tr><td colspan="8" style="text-align: center;">Loading data...</td></tr>
     </tbody>
   </table>
 
@@ -108,7 +107,7 @@
         tbody.innerHTML = '';
 
         if (orgs.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="8" style="color:white; text-align:center;">No organisations found.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">No organisations found.</td></tr>';
           return;
         }
 
