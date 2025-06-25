@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>NHS ODS Lookup – Mendip Vale</title>
+  <title>NHS ODS Lookup – Mendip Vale Medical Practice</title>
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; }
     table { width: 100%; border-collapse: collapse; margin-top: 20px; }
@@ -10,7 +10,7 @@
   </style>
 </head>
 <body>
-  <h2>NHS ODS Search: Mendip Vale Practice</h2>
+  <h2>NHS ODS Search: Mendip Vale Medical Practice</h2>
   <button onclick="searchODS()">Search</button>
 
   <table id="resultsTable" style="display:none;">
@@ -28,7 +28,7 @@
 
   <script>
     async function searchODS() {
-      const url = 'https://directory.spineservices.nhs.uk/ORD/2-0-0/organisations?Name=Mendip%20Vale&Limit=5';
+      const url = 'https://directory.spineservices.nhs.uk/ORD/2-0-0/organisations?Name=Mendip%20Vale%20Medical%20Practice&Limit=5';
       try {
         const response = await fetch(url, {
           headers: {
