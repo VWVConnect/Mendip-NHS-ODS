@@ -22,7 +22,7 @@
     body {
       font-family: 'Articulat CF Light', Arial, sans-serif;
       padding: 20px;
-      background: white; /* background set to white */
+      background: white;
       color: #222;
       margin: 0;
     }
@@ -111,9 +111,15 @@
         }
 
         orgs.forEach(org => {
-          const address = [
-            org.Address1, org.Address2, org.Address3, org.Town, org.County
-          ].filter(Boolean).join(', ');
+          const addressParts = [
+            org.Address1 || org.AddressLine1 || org.AddressLine_1,
+            org.Address2 || org.AddressLine2 || org.AddressLine_2,
+            org.Address3 || org.AddressLine3 || org.AddressLine_3,
+            org.Town || org.City || org.TownName,
+            org.County || org.CountyName
+          ].filter(Boolean);
+
+          const address = addressParts.join(', ');
 
           const row = document.createElement('tr');
           row.innerHTML = `
