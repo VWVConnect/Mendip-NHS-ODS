@@ -1,100 +1,109 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Mendip Vale Medical Practice (Yatton) – Live NHS ODS Data</title>
+  <meta charset="UTF-8" />
+  <title>Mendip Vale Organisations - NHS ODS Live Data</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f9f9f9;
       padding: 20px;
-      color: #333;
+      background: #f4f6f8;
+      color: #222;
     }
     h1 {
       color: #0072ce;
-      font-size: 24px;
-    }
-    .info-box {
-      background: #fff;
-      padding: 20px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      max-width: 700px;
+      margin-bottom: 10px;
     }
     table {
-      width: 100%;
-      margin-top: 10px;
       border-collapse: collapse;
+      width: 100%;
+      background: white;
+      margin-top: 20px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
     }
     th, td {
-      text-align: left;
+      border: 1px solid #ddd;
       padding: 10px;
-      border-bottom: 1px solid #eee;
+      vertical-align: top;
     }
     th {
-      background: #f0f0f0;
+      background: #e9ecef;
+      text-align: left;
     }
-    .footer {
-      margin-top: 30px;
-      font-size: 0.85em;
-      color: #666;
+    tr:hover {
+      background: #f1f7fb;
+    }
+    .nowrap {
+      white-space: nowrap;
     }
   </style>
 </head>
 <body>
-  <h1>Mendip Vale Medical Practice (Yatton)</h1>
-  <div class="info-box">
-    <table id="odsTable">
-      <tbody id="odsData">
-        <tr><td colspan="2">Loading data from NHS ODS...</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <div class="footer">
-    Data sourced from <a href="https://directory.spineservices.nhs.uk/ORD" target="_blank">NHS ODS API</a> (live).
-  </div>
+  <h1>Mendip Vale Organisations (NHS ODS Live Data)</h1>
+  <p>Search results for <strong>"MENDIP VALE"</strong> from NHS ODS API</p>
+
+  <table id="resultsTable">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>ODS Code</th>
+        <th>Organisation Type</th>
+        <th>Status</th>
+        <th>Postcode</th>
+        <th>Address</th>
+        <th>Last Change Date</th>
+        <th>Created On</th>
+      </tr>
+    </thead>
+    <tbody id="resultsBody">
+      <tr><td colspan="8">Loading data...</td></tr>
+    </tbody>
+  </table>
 
   <script>
-    async function fetchODSData() {
-      const url = 'https://directory.spineservices.nhs.uk/ORD/2-0-0/organisations/L81086004';
-
+    async function fetchOrganisations() {
+      const url = 'https://directory.spineservices.nhs.uk/ORD/2-0-0/organisations?Name=MENDIP%20VALE&Limit=20';
       try {
-        const response = await fetch(url, {
-          headers: { 'Accept': 'application/json' }
+        const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+        if (!res.ok) throw new Error(`API error: ${res.status}`);
+
+        const data = await res.json();
+
+        const orgs = data.Organisation || [];
+        const tbody = document.getElementById('resultsBody');
+        tbody.innerHTML = '';
+
+        if (orgs.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="8">No organisations found.</td></tr>';
+          return;
+        }
+
+        orgs.forEach(org => {
+          const address = [
+            org.Address1, org.Address2, org.Address3, org.Town, org.County
+          ].filter(Boolean).join(', ');
+
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${org.Name || 'N/A'}</td>
+            <td class="nowrap">${org.OrgId?.extension || 'N/A'}</td>
+            <td>${org.OrgRecordClass || 'N/A'}</td>
+            <td>${org.Status || 'N/A'}</td>
+            <td class="nowrap">${org.PostCode || 'N/A'}</td>
+            <td>${address || 'N/A'}</td>
+            <td class="nowrap">${org.LastChangeDate || 'N/A'}</td>
+            <td class="nowrap">${org.CreatedOn || 'N/A'}</td>
+          `;
+          tbody.appendChild(row);
         });
-
-        const result = await response.json();
-        const org = result.Organisation;
-
-        const fields = {
-          "Name": org.Name,
-          "ODS Site Code": org.OrgId.extension,
-          "Status": org.Status,
-          "Organisation Type": org.OrgRecordClass,
-          "Role": org.OrgRole?.map(role => role.id).join(", "),
-          "Postcode": org.PostCode,
-          "Address": [org.Address1, org.Address2, org.Address3, org.Town, org.County]
-                        .filter(Boolean).join(", "),
-          "Created On": org.CreatedOn,
-          "Last Change Date": org.LastChangeDate
-        };
-
-        const tbody = document.getElementById("odsData");
-        tbody.innerHTML = "";
-
-        Object.entries(fields).forEach(([key, value]) => {
-          const row = `<tr><th>${key}</th><td>${value || "N/A"}</td></tr>`;
-          tbody.insertAdjacentHTML("beforeend", row);
-        });
-
       } catch (error) {
-        document.getElementById("odsData").innerHTML = 
-          `<tr><td colspan="2" style="color:red;">Error loading data from NHS ODS.</td></tr>`;
         console.error(error);
+        const tbody = document.getElementById('resultsBody');
+        tbody.innerHTML = `<tr><td colspan="8" style="color:red;">Error loading data: ${error.message}</td></tr>`;
       }
     }
 
-    fetchODSData();
+    fetchOrganisations();
   </script>
 </body>
 </html>
