@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Mendip Vale Medical Practice – NHS ODS Full Data</title>
+  <title>Mendip Vale - NHS Live Data</title>
   <style>
     body {
       font-family: 'Articulat CF Light', Arial, sans-serif;
@@ -46,8 +46,8 @@
   </style>
 </head>
 <body>
-  <h1>Mendip Vale Medical Practice – NHS ODS Full Data</h1>
-  <p>Search results for <strong>"MENDIP VALE MEDICAL PRACTICE"</strong> from NHS ODS API</p>
+  <h1>Mendip Vale Medical Practice – NHS ODS Live Data</h1>
+  <p>Search results for <strong>"MENDIP VALE MEDICAL PRACTICE"</strong> (live from NHS ODS API)</p>
 
   <table>
     <thead>
@@ -55,50 +55,38 @@
         <th>Name</th>
         <th>ODS Code</th>
         <th>Status</th>
-        <th>Organisation Type</th>
+        <th>Org Type</th>
         <th>Postcode</th>
-        <th>Address</th>
-        <th>Legal Start</th>
-        <th>Legal End</th>
+        <th>Full Address</th>
         <th>Created On</th>
-        <th>Last Change Date</th>
+        <th>Last Change</th>
       </tr>
     </thead>
     <tbody id="resultsBody">
-      <tr><td colspan="10">Loading data...</td></tr>
+      <tr><td colspan="8">Loading data...</td></tr>
     </tbody>
   </table>
 
   <script>
-    async function fetchODSData() {
-      const url = 'https://directory.spineservices.nhs.uk/ORD/2-0-0/organisations?Name=MENDIP%20VALE%20MEDICAL%20PRACTICE&Limit=5';
-
+    async function fetchODS() {
+      const url = 'https://directory.spineservices.nhs.uk/ORD/2-0-0/organisations?Name=MENDIP%20VALE%20MEDICAL%20PRACTICE&Limit=10';
       try {
         const res = await fetch(url, {
           headers: { 'Accept': 'application/json' }
         });
-
         const data = await res.json();
         const orgs = data.Organisations || [];
         const tbody = document.getElementById('resultsBody');
         tbody.innerHTML = '';
 
         if (!orgs.length) {
-          tbody.innerHTML = '<tr><td colspan="10">No organisations found.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="8">No organisations found.</td></tr>';
           return;
         }
 
         orgs.forEach(org => {
-          const address = [
-            org.Address1,
-            org.Address2,
-            org.Address3,
-            org.Town,
-            org.County
-          ].filter(Boolean).join(', ');
-
-          const legalStart = (org.Date || []).find(d => d.Type === 'Legal')?.Start || '';
-          const legalEnd = (org.Date || []).find(d => d.Type === 'Legal')?.End || '';
+          const address = [org.Address1, org.Address2, org.Address3, org.Town, org.County]
+            .filter(Boolean).join(', ');
 
           const row = document.createElement('tr');
           row.innerHTML = `
@@ -108,22 +96,19 @@
             <td>${org.OrgRecordClass || 'N/A'}</td>
             <td>${org.PostCode || 'N/A'}</td>
             <td>${address || 'N/A'}</td>
-            <td>${legalStart}</td>
-            <td>${legalEnd}</td>
             <td>${org.CreatedOn || 'N/A'}</td>
             <td>${org.LastChangeDate || 'N/A'}</td>
           `;
           tbody.appendChild(row);
         });
 
-      } catch (error) {
-        console.error(error);
-        const tbody = document.getElementById('resultsBody');
-        tbody.innerHTML = `<tr><td colspan="10" style="color:red;">Error loading data: ${error.message}</td></tr>`;
+      } catch (e) {
+        document.getElementById('resultsBody').innerHTML =
+          `<tr><td colspan="8">Error loading data: ${e.message}</td></tr>`;
       }
     }
 
-    fetchODSData();
+    fetchODS();
   </script>
 </body>
 </html>
