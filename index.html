@@ -1,86 +1,100 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Mendip Vale Medical Practice (Yatton) – NHS ODS Live Data</title>
+  <meta charset="UTF-8">
+  <title>Mendip Vale Medical Practice (Yatton) – Live NHS ODS Data</title>
   <style>
     body {
       font-family: Arial, sans-serif;
+      background: #f9f9f9;
       padding: 20px;
-      background-color: #f8f9fa;
+      color: #333;
     }
-    h2 {
+    h1 {
       color: #0072ce;
+      font-size: 24px;
+    }
+    .info-box {
+      background: #fff;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      max-width: 700px;
     }
     table {
-      margin-top: 20px;
-      border-collapse: collapse;
       width: 100%;
-      background: white;
+      margin-top: 10px;
+      border-collapse: collapse;
     }
     th, td {
-      border: 1px solid #ccc;
-      padding: 10px;
       text-align: left;
+      padding: 10px;
+      border-bottom: 1px solid #eee;
     }
     th {
-      background-color: #e9ecef;
+      background: #f0f0f0;
+    }
+    .footer {
+      margin-top: 30px;
+      font-size: 0.85em;
+      color: #666;
     }
   </style>
 </head>
 <body>
-  <h2>Live ODS Data – Mendip Vale Medical Practice (Yatton)</h2>
-  <p><strong>ODS Site Code:</strong> L81086004</p>
-  <table id="odsData" style="display:none;">
-    <tbody id="dataBody"></tbody>
-  </table>
-  <p id="status"></p>
+  <h1>Mendip Vale Medical Practice (Yatton)</h1>
+  <div class="info-box">
+    <table id="odsTable">
+      <tbody id="odsData">
+        <tr><td colspan="2">Loading data from NHS ODS...</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="footer">
+    Data sourced from <a href="https://directory.spineservices.nhs.uk/ORD" target="_blank">NHS ODS API</a> (live).
+  </div>
 
   <script>
-    async function loadODSData() {
+    async function fetchODSData() {
       const url = 'https://directory.spineservices.nhs.uk/ORD/2-0-0/organisations/L81086004';
 
       try {
-        const res = await fetch(url, {
+        const response = await fetch(url, {
           headers: { 'Accept': 'application/json' }
         });
 
-        if (!res.ok) throw new Error('Failed to fetch');
-
-        const data = await res.json();
-        const org = data.Organisation;
-
-        if (!org) {
-          document.getElementById('status').textContent = 'No data found.';
-          return;
-        }
+        const result = await response.json();
+        const org = result.Organisation;
 
         const fields = {
-          'Name': org.Name,
-          'ODS Site Code': org.OrgId.extension,
-          'Status': org.Status,
-          'Postcode': org.PostCode,
-          'Address': [org.Address1, org.Address2, org.Address3, org.Town, org.County].filter(Boolean).join(', '),
-          'Last Change Date': org.LastChangeDate,
-          'Created On': org.CreatedOn
+          "Name": org.Name,
+          "ODS Site Code": org.OrgId.extension,
+          "Status": org.Status,
+          "Organisation Type": org.OrgRecordClass,
+          "Role": org.OrgRole?.map(role => role.id).join(", "),
+          "Postcode": org.PostCode,
+          "Address": [org.Address1, org.Address2, org.Address3, org.Town, org.County]
+                        .filter(Boolean).join(", "),
+          "Created On": org.CreatedOn,
+          "Last Change Date": org.LastChangeDate
         };
 
-        const tbody = document.getElementById('dataBody');
-        tbody.innerHTML = '';
+        const tbody = document.getElementById("odsData");
+        tbody.innerHTML = "";
 
-        Object.entries(fields).forEach(([label, value]) => {
-          const row = `<tr><th>${label}</th><td>${value || 'N/A'}</td></tr>`;
-          tbody.insertAdjacentHTML('beforeend', row);
+        Object.entries(fields).forEach(([key, value]) => {
+          const row = `<tr><th>${key}</th><td>${value || "N/A"}</td></tr>`;
+          tbody.insertAdjacentHTML("beforeend", row);
         });
 
-        document.getElementById('odsData').style.display = 'table';
-
-      } catch (err) {
-        document.getElementById('status').textContent = 'Error loading ODS data.';
-        console.error(err);
+      } catch (error) {
+        document.getElementById("odsData").innerHTML = 
+          `<tr><td colspan="2" style="color:red;">Error loading data from NHS ODS.</td></tr>`;
+        console.error(error);
       }
     }
 
-    loadODSData();
+    fetchODSData();
   </script>
 </body>
 </html>
