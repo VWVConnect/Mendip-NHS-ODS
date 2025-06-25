@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>NHS ODS Lookup – Mendip Vale</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background-color: #f0f0f0; }
+  </style>
+</head>
+<body>
+  <h2>NHS ODS Search: Mendip Vale Practice</h2>
+  <button onclick="searchODS()">Search</button>
+
+  <table id="resultsTable" style="display:none;">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>ODS Code</th>
+        <th>Postcode</th>
+        <th>Status</th>
+        <th>Last Change</th>
+      </tr>
+    </thead>
+    <tbody id="resultsBody"></tbody>
+  </table>
+
+  <script>
+    async function searchODS() {
+      const url = 'https://directory.spineservices.nhs.uk/ORD/2-0-0/organisations?Name=Mendip%20Vale&Limit=5';
+      try {
+        const response = await fetch(url, {
+          headers: {
+            'Accept': 'application/json'
+          }
+        });
+        const data = await response.json();
+
+        const tbody = document.getElementById('resultsBody');
+        tbody.innerHTML = '';
+
+        if (data.Organisation && data.Organisation.length > 0) {
+          data.Organisation.forEach(org => {
+            const row = `
+              <tr>
+                <td>${org.Name}</td>
+                <td>${org.OrgId?.extension || ''}</td>
+                <td>${org.PostCode || ''}</td>
+                <td>${org.Status || ''}</td>
+                <td>${org.LastChangeDate || ''}</td>
+              </tr>
+            `;
+            tbody.insertAdjacentHTML('beforeend', row);
+          });
+          document.getElementById('resultsTable').style.display = 'table';
+        } else {
+          tbody.innerHTML = '<tr><td colspan="5">No results found.</td></tr>';
+          document.getElementById('resultsTable').style.display = 'table';
+        }
+      } catch (error) {
+        alert('Error fetching data from NHS ODS API.');
+        console.error(error);
+      }
+    }
+  </script>
+</body>
+</html>
