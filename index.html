@@ -2,113 +2,35 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Mendip Vale - NHS Live Data</title>
+  <title>Mendip Vale Medical Practice ODS Data</title>
   <style>
-    body {
-      font-family: 'Articulat CF Light', Arial, sans-serif;
-      background: white;
-      color: #222;
-      padding: 20px;
+    html, body {
+      margin: 0; 
+      padding: 0; 
+      height: 100%;
+      overflow: hidden;
     }
-    h1 {
-      font-family: 'Articulat CF Bold', Arial, sans-serif;
-      color: #192543;
-      border-bottom: 3px solid #192543;
-    }
-    p {
-      color: #07b0a0;
-    }
-    table {
+    iframe {
+      border: none;
       width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-      background: white;
-      border: 2px solid #192543;
-    }
-    th {
-      background: #7fc28f;
-      color: white;
-      padding: 10px;
-      text-align: left;
-    }
-    td {
-      border: 1px solid #ddd;
-      padding: 10px;
-      vertical-align: top;
-      color: white;
-    }
-    tr {
-      background-color: #192543;
-    }
-    tr:hover {
-      background-color: #1f305a;
+      height: 100vh;
+      display: block;
     }
   </style>
+  <script>
+    function reloadIframe() {
+      const iframe = document.getElementById("odsIframe");
+      iframe.src = iframe.src; // reload the iframe to get updated data
+    }
+    // Reload iframe every 5 minutes (300,000 ms)
+    setInterval(reloadIframe, 300000);
+  </script>
 </head>
 <body>
-  <h1>Mendip Vale Medical Practice – NHS ODS Live Data</h1>
-  <p>Search results for <strong>"MENDIP VALE MEDICAL PRACTICE"</strong> (live from NHS ODS API)</p>
-
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>ODS Code</th>
-        <th>Status</th>
-        <th>Org Type</th>
-        <th>Postcode</th>
-        <th>Full Address</th>
-        <th>Created On</th>
-        <th>Last Change</th>
-      </tr>
-    </thead>
-    <tbody id="resultsBody">
-      <tr><td colspan="8">Loading data...</td></tr>
-    </tbody>
-  </table>
-
-  <script>
-    async function fetchODS() {
-      const url = 'https://directory.spineservices.nhs.uk/ORD/2-0-0/organisations?Name=MENDIP%20VALE%20MEDICAL%20PRACTICE&Limit=10';
-      try {
-        const res = await fetch(url, {
-          headers: { 'Accept': 'application/json' }
-        });
-        const data = await res.json();
-        const orgs = data.Organisations || [];
-        const tbody = document.getElementById('resultsBody');
-        tbody.innerHTML = '';
-
-        if (!orgs.length) {
-          tbody.innerHTML = '<tr><td colspan="8">No organisations found.</td></tr>';
-          return;
-        }
-
-        orgs.forEach(org => {
-          const address = [org.Address1, org.Address2, org.Address3, org.Town, org.County]
-            .filter(Boolean).join(', ');
-
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td>${org.Name || 'N/A'}</td>
-            <td>${org.OrgId?.extension || 'N/A'}</td>
-            <td>${org.Status || 'N/A'}</td>
-            <td>${org.OrgRecordClass || 'N/A'}</td>
-            <td>${org.PostCode || 'N/A'}</td>
-            <td>${address || 'N/A'}</td>
-            <td>${org.CreatedOn || 'N/A'}</td>
-            <td>${org.LastChangeDate || 'N/A'}</td>
-          `;
-          tbody.appendChild(row);
-        });
-
-      } catch (e) {
-        document.getElementById('resultsBody').innerHTML =
-          `<tr><td colspan="8">Error loading data: ${e.message}</td></tr>`;
-      }
-    }
-
-    fetchODS();
-  </script>
+  <iframe
+    id="odsIframe"
+    src="https://www.odsdatasearchandexport.nhs.uk?search=advorg&name=MENDIP%20VALE%20MEDICAL%20PRACTICE&lastChangeDateEnd=2025-06-25&columns=111010100001111110010011000000000000000000000000000000000000000000000000000"
+    title="Mendip Vale Medical Practice ODS Data"
+  ></iframe>
 </body>
 </html>
