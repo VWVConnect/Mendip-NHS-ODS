@@ -1,12 +1,14 @@
 # ods_fetcher.py
 import requests
+import os
 
-# Example: GP practice data (change URL for others)
 url = "https://files.digital.nhs.uk/assets/ods/current/epraccur.csv"
-save_as = "epraccur.csv"
+filename = "epraccur.csv"
 
 r = requests.get(url)
-with open(save_as, "wb") as f:
+r.raise_for_status()
+
+with open(filename, "wb") as f:
     f.write(r.content)
 
-print("ODS data downloaded.")
+print(f"Downloaded: {filename} ({os.path.getsize(filename)} bytes)")
